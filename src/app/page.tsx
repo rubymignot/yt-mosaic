@@ -149,8 +149,7 @@ export default function Home() {
   // UI visibility based on mouse position
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Calculate threshold - TOP 15% of screen for controls
-      const controlsThreshold = window.innerHeight * 0.15;
+      const controlsThreshold = window.innerHeight * 0.25;
       const shouldShowControlsUI = e.clientY <= controlsThreshold;
       setShowUI(shouldShowControlsUI);
       
