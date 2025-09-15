@@ -36,7 +36,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Script defer src={process.env.UMAMI_SCRIPT_URL} data-website-id={process.env.UMAMI_WEBSITE_ID}></Script>
+      <head>
+        <Script defer src={process.env.UMAMI_SCRIPT_URL} data-website-id={process.env.UMAMI_WEBSITE_ID}></Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
