@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface YouTubeEmbedProps {
   videoId: string;
 }
 
 export default function YouTubeEmbed({ videoId }: YouTubeEmbedProps) {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -32,7 +34,7 @@ export default function YouTubeEmbed({ videoId }: YouTubeEmbedProps) {
   if (!videoId) {
     return (
       <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
-        <span className="text-gray-500 text-xs italic">Empty Slot</span>
+        <span className="text-gray-500 text-xs italic">{t.emptySlotLabel}</span>
       </div>
     );
   }
@@ -50,15 +52,15 @@ export default function YouTubeEmbed({ videoId }: YouTubeEmbedProps) {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span className="text-gray-500 text-[10px]">Loading...</span>
+            <span className="text-gray-500 text-[10px]">{t.loadingVideo}</span>
           </div>
         </div>
       )}
 
       {error && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black text-red-500 text-xs z-10 p-2 text-center">
-          <span>Error loading video.</span>
-          <span className="text-gray-400 mt-1">ID: {videoId}</span>
+          <span>{t.errorLoading}</span>
+          <span className="text-gray-400 mt-1">{t.videoId} {videoId}</span>
         </div>
       )}
 

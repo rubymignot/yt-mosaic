@@ -7,6 +7,7 @@ import MosaicControls from "./components/MosaicControls";
 import { extractVideoId } from "./utils/importHelpers";
 import Notification, { NotificationType } from "./components/Notification";
 import GuidePopup from "./components/GuidePopup";
+import { useTranslation } from "./hooks/useTranslation";
 
 // Cookie utility functions
 const setCookie = (name: string, value: string, days: number = 30) => {
@@ -52,6 +53,9 @@ const deleteCookie = (name: string) => {
 };
 
 export default function Home() {
+  // Translation
+  const { t, language, toggleLanguage } = useTranslation();
+  
   // State
   const [videoUrls, setVideoUrls] = useState<string[]>([]);
   const [videoIds, setVideoIds] = useState<string[]>([]);
@@ -178,12 +182,14 @@ export default function Home() {
       switch (e.key) {
         case 'h': case 'H': setShowControls(prev => !prev); break;
         case 'f': case 'F': toggleFullscreen(); break;
-        case 'g': case 'G': 
+        case 'g': case 'G': {
+          const currentLayout = layout;
           setLayout(prev => prev === "grid" ? "focus" : "grid"); 
           setFocusedVideo(null);
           // Show notification when switching layout
-          showNotification(`Switched to ${layout === "grid" ? "Gallery" : "Grid"} view`, 'info');
+          showNotification(`${t.switchedTo} ${currentLayout === "grid" ? t.galleryView : t.gridView} ${t.view}`, 'info');
           break;
+        }
         case 'Escape': setFocusedVideo(null); break;
         default:
           // Number keys 1-9 for selecting videos
@@ -235,7 +241,7 @@ export default function Home() {
         clearTimeout(hideUITimer.current);
       }
     };
-  }, [videoIds.length, layout]);
+  }, [videoIds.length, layout, t]);
 
   const addVideo = () => {
     if (videoUrls.length < MAX_VIDEOS) {
@@ -346,7 +352,7 @@ export default function Home() {
   };
 
   if (!isLoaded) {
-    return <div className="bg-black w-screen h-screen flex items-center justify-center text-white">Loading...</div>;
+    return <div className="bg-black w-screen h-screen flex items-center justify-center text-white">{t.loading}</div>;
   }
 
   return (
@@ -370,6 +376,9 @@ export default function Home() {
             toggleControls={() => setShowControls(prev => !prev)}
             toggleGuide={() => setShowGuide(prev => !prev)}
             isControlsVisible={showControls}
+            t={t}
+            language={language}
+            toggleLanguage={toggleLanguage}
           />
         </div>
       )}
@@ -420,7 +429,7 @@ export default function Home() {
                     )}
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-black/70 py-1 px-2 text-xs">
-                    {index + 1}. {videoId ? videoId.substring(0, 6) : "Empty"}
+                    {index + 1}. {videoId ? videoId.substring(0, 6) : t.emptySlotLabel}
                   </div>
                 </div>
               ))}
@@ -440,7 +449,7 @@ export default function Home() {
 
       {/* Guide Popup */}
       {showGuide && (
-        <GuidePopup onClose={() => setShowGuide(false)} />
+        <GuidePopup onClose={() => setShowGuide(false)} t={t} />
       )}
     </div>
   );

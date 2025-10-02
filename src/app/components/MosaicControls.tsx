@@ -8,6 +8,7 @@ import {
   Squares2X2Icon, RectangleStackIcon, QuestionMarkCircleIcon, XMarkIcon, PencilSquareIcon,
   ClipboardIcon, EyeIcon, EyeSlashIcon, ChevronUpIcon
 } from '@heroicons/react/24/outline'; // Using Heroicons for consistency
+import { Translations, Language } from "../utils/translations";
 
 interface MosaicControlsProps {
   videoUrls: string[];
@@ -25,6 +26,9 @@ interface MosaicControlsProps {
   toggleControls: () => void;
   toggleGuide: () => void;
   isControlsVisible: boolean;
+  t: Translations;
+  language: Language;
+  toggleLanguage: () => void;
 }
 
 export default function MosaicControls({ 
@@ -42,7 +46,10 @@ export default function MosaicControls({
   toggleFullscreen,
   toggleControls,
   toggleGuide,
-  isControlsVisible
+  isControlsVisible,
+  t,
+  language,
+  toggleLanguage
 }: MosaicControlsProps) {
   const [expandedInputs, setExpandedInputs] = useState(false);
   const [activeInput, setActiveInput] = useState<number | null>(null);
@@ -125,7 +132,7 @@ export default function MosaicControls({
     const nonEmptyUrls = videoUrls.filter(url => url.trim() !== '');
     
     if (nonEmptyUrls.length === 0) {
-      alert('No videos to export');
+      alert(t.noVideosToExport);
       return;
     }
     
@@ -150,7 +157,7 @@ export default function MosaicControls({
     URL.revokeObjectURL(downloadUrl);
 
     // Show success notification
-    showNotification(`Playlist "${playlistData.name}" exported successfully!`, 'success');
+    showNotification(`Playlist "${playlistData.name}" ${t.exportSuccess}`, 'success');
   };
 
   // Import playlist from JSON file - completely rewritten with a single-step approach
@@ -166,7 +173,7 @@ export default function MosaicControls({
       const result = await processPlaylistFile(file, maxVideos);
       
       if (!result) {
-        showNotification('Failed to process playlist: Invalid file format or content.', 'error');
+        showNotification(`${t.importError} Invalid file format or content.`, 'error');
         if (finishPlaylistImport) finishPlaylistImport(); // Cancel import
         return;
       }
@@ -174,7 +181,7 @@ export default function MosaicControls({
       const { urls, ids } = result;
       
       // Tell the user we're starting the import via notification
-      showNotification(`Importing ${urls.length} videos from "${file.name}"... This will replace current videos.`, 'info');
+      showNotification(`${t.importStarting} ${urls.length} ${t.videos.toLowerCase()} "${file.name}"... ${t.importReplace}`, 'info');
       
       // Clear existing videos first - get down to the required minimum (e.g., 2)
       const minVideos = 2; // Keep at least 2 slots
@@ -212,11 +219,11 @@ export default function MosaicControls({
       }
       
       // Show completion notification - no longer forcing reload
-      showNotification('Playlist import completed successfully!', 'success');
+      showNotification(t.importSuccess, 'success');
       
     } catch (error) {
       console.error('Error importing playlist:', error);
-      showNotification(`Failed to import playlist: ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
+      showNotification(`${t.importError} ${error instanceof Error ? error.message : 'Unknown error'}`, 'error');
       if (finishPlaylistImport) finishPlaylistImport(); // Cancel import
     } finally {
       // Reset file input
@@ -247,37 +254,37 @@ export default function MosaicControls({
         {/* Left Side: Video Count & Basic Actions */} 
         <div className="flex items-center gap-2 flex-wrap">
           <div className="text-sm font-medium text-gray-400 bg-gray-800/60 px-2.5 py-1 rounded-md"> {/* Subtle background */}
-            {videoUrls.length} / {maxVideos} Videos
+            {videoUrls.length} / {maxVideos} {t.videos}
           </div>
           {videoUrls.length < maxVideos && (
             <button
               onClick={addVideo}
               className={`${primaryButtonClass}`}
-              title="Add empty video slot"
+              title={t.addSlot}
             >
-              <PlusIcon className="w-4 h-4 mr-1.5" /> Add Slot
+              <PlusIcon className="w-4 h-4 mr-1.5" /> {t.addSlot}
             </button>
           )}
           <button
             onClick={clearAllVideos}
             className={`${dangerButtonClass}`}
-            title="Clear all videos (keeps first two empty)"
+            title={t.clearAll}
           >
-             <TrashIcon className="w-4 h-4 mr-1.5" /> Clear All
+             <TrashIcon className="w-4 h-4 mr-1.5" /> {t.clearAll}
           </button>
           <button
             onClick={exportPlaylist}
             className={`${successButtonClass}`}
-            title="Export current videos as JSON playlist"
+            title={t.export}
           >
-            <ArrowUpTrayIcon className="w-4 h-4 mr-1.5" /> Export
+            <ArrowUpTrayIcon className="w-4 h-4 mr-1.5" /> {t.export}
           </button>
           <button
             onClick={handleImportClick}
             className={`${purpleButtonClass}`}
-            title="Import playlist from JSON file"
+            title={t.import}
           >
-             <ArrowDownTrayIcon className="w-4 h-4 mr-1.5" /> Import
+             <ArrowDownTrayIcon className="w-4 h-4 mr-1.5" /> {t.import}
           </button>
           <input
             type="file"
@@ -294,7 +301,7 @@ export default function MosaicControls({
           <button 
             onClick={() => {setLayout(prev => prev === "grid" ? "focus" : "grid"); setFocusedVideo(null);}}
             className={iconButtonClass}
-            title={currentLayout === "grid" ? "Switch to Gallery View (G)" : "Switch to Grid View (G)"}
+            title={currentLayout === "grid" ? t.switchToGallery : t.switchToGrid}
           >
             {currentLayout === "grid" ? 
               <RectangleStackIcon className="h-5 w-5" /> 
@@ -305,21 +312,28 @@ export default function MosaicControls({
           <button 
             onClick={toggleFullscreen} 
             className={iconButtonClass}
-            title="Toggle Fullscreen (F)"
+            title={t.toggleFullscreen}
           >
              <ArrowsPointingOutIcon className="h-5 w-5" />
           </button>
            <button 
             onClick={toggleGuide} 
             className={`${iconButtonClass} hover:bg-blue-600/90`}
-            title="Show Keyboard Shortcuts Guide (?)"
+            title={t.showGuide}
           >
             <QuestionMarkCircleIcon className="h-5 w-5" />
           </button>
           <button 
+            onClick={toggleLanguage}
+            className={`${iconButtonClass} hover:bg-green-600/90`}
+            title={`Language: ${language === 'en' ? 'English → Français' : 'Français → English'}`}
+          >
+            <span className="text-xs font-bold">{language.toUpperCase()}</span>
+          </button>
+          <button 
             onClick={toggleControls} 
             className={`${iconButtonClass} hover:bg-red-600/90`}
-            title={isControlsVisible ? "Hide Top Controls (H)" : "Show Top Controls (H)"}
+            title={isControlsVisible ? t.hideControls : t.showControls}
           >
             {isControlsVisible ? <EyeSlashIcon className="h-5 w-5" /> : <EyeIcon className="h-5 w-5" />}
           </button>
@@ -328,13 +342,13 @@ export default function MosaicControls({
           <button 
             className={`${secondaryButtonClass} ${expandedInputs ? '!bg-gray-600' : ''}`} // Use secondary style, override background when active
             onClick={() => setExpandedInputs(!expandedInputs)}
-            title={expandedInputs ? "Collapse video inputs" : "Expand video inputs for editing"}
+            title={expandedInputs ? t.collapse : t.editVideos}
           >
             {expandedInputs ? 
               <ChevronUpIcon className="w-4 h-4 mr-1.5" /> : 
               <PencilSquareIcon className="w-4 h-4 mr-1.5" /> // Use PencilSquare for "Edit" idea
             }
-            {expandedInputs ? "Collapse" : "Edit Videos"}
+            {expandedInputs ? t.collapse : t.editVideos}
           </button>
         </div>
       </div>
@@ -352,13 +366,13 @@ export default function MosaicControls({
                 onChange={(e) => handleInputChange(index, e.target.value)}
                 onFocus={() => setActiveInput(index)}
                 onBlur={() => setActiveInput(null)}
-                placeholder="YouTube URL or ID"
+                placeholder={t.placeholder}
                 className="flex-grow bg-transparent border-none p-2 text-white text-sm focus:ring-0 placeholder-gray-500" // Increased size slightly
               />
               <button
                 onClick={() => handlePaste(index)}
                 className="bg-gray-700 hover:bg-blue-700 p-2 transition-colors border-l border-gray-600/50" // Match input padding, softer border
-                title="Paste from clipboard"
+                title={t.pasteClipboard}
               >
                  <ClipboardIcon className="w-4 h-4 text-gray-300"/>
               </button>
@@ -366,7 +380,7 @@ export default function MosaicControls({
                 <button
                   onClick={() => removeVideo(index)}
                   className="bg-gray-700 hover:bg-red-700 p-2 transition-colors border-l border-gray-600/50" // Match input padding, softer border
-                  title="Remove video slot"
+                  title={t.removeSlot}
                 >
                    <XMarkIcon className="w-4 h-4 text-gray-300"/>
                 </button>
@@ -382,14 +396,21 @@ export default function MosaicControls({
               key={index}
               onClick={() => focusInput(index)}
               className={`px-2.5 py-1.5 rounded-md text-xs flex items-center transition-all duration-150 shadow-sm border focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-900 focus:ring-blue-500 ${url ? 'bg-gray-700/80 hover:bg-gray-600/90 border-gray-600/50' : 'bg-gray-800/60 hover:bg-gray-700/80 border-dashed border-gray-600/80'}`}
-              title={url || "Empty slot - Click to edit"}
+              title={url || t.emptySlot}
             >
               <span className="w-5 text-center font-mono text-gray-400 mr-2 select-none">{index + 1}</span> {/* Slightly more space */}
-              <span className={`truncate max-w-[50px] font-medium ${url ? 'text-gray-200' : 'text-gray-500'}`}>{url ? getVideoLabel(url) : "Empty"}</span> {/* Clearer empty state */}
+              <span className={`truncate max-w-[50px] font-medium ${url ? 'text-gray-200' : 'text-gray-500'}`}>{url ? getVideoLabel(url) : t.emptySlotLabel}</span> {/* Clearer empty state */}
             </button>
           ))}
         </div>
       )}
+      
+      {/* Credit Row - Bottom of Top Bar */}
+      <div className="flex justify-end">
+        <div className="text-xs text-gray-500">
+          {t.madeInFrance} {t.by} <a href="https://rubymignot.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">Ruby Mignot</a>
+        </div>
+      </div>
     </div>
   );
 } 

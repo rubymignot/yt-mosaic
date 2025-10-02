@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "YT Mosaic Viewer",
-  description: "Watch multiple YouTube videos at once in a customizable mosaic layout.",
-  keywords: ["YouTube", "mosaic", "multiple videos", "video grid", "multiviewer"],
+  description: "Watch multiple YouTube videos at once in a customizable mosaic layout. / Regardez plusieurs vidéos YouTube simultanément.",
+  keywords: ["YouTube", "mosaic", "multiple videos", "video grid", "multiviewer", "mosaïque", "vidéos multiples"],
   openGraph: {
     title: "YT Mosaic Viewer",
     description: "Watch multiple YouTube videos at once in a customizable mosaic layout.",
