@@ -408,7 +408,7 @@ export default function MosaicControls({
       {/* Credit Row - Bottom of Top Bar */}
       <div className="flex justify-end">
         <div className="text-xs text-gray-500">
-          {t.madeInFrance} {t.by} <a href="https://rubymignot.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors">Ruby Mignot</a>
+          {t.madeInFrance} {t.by} <a href="https://rubymignot.com" target="_blank" rel="noopener" className="text-blue-400 hover:text-blue-300 transition-colors">Ruby Mignot</a>
         </div>
       </div>
     </div>
